@@ -86,7 +86,7 @@ public class BackendUtils {
         }
     }
 
-    static HeapKeyedStateBackend<Long> createHeapKeyedStateBackend() throws IOException {
+    static HeapKeyedStateBackend<Long> createHeapKeyedStateBackend(boolean asynchronousSnapshots) throws IOException {
         File rootDir = prepareDirectory(rootDirName, null);
         File recoveryBaseDir = prepareDirectory(recoveryDirName, rootDir);
         KeyGroupRange keyGroupRange = new KeyGroupRange(0, 1);
@@ -106,7 +106,7 @@ public class BackendUtils {
                 AbstractStateBackend.getCompressionDecorator(executionConfig),
                 new LocalRecoveryConfig(false, new LocalRecoveryDirectoryProviderImpl(recoveryBaseDir, new JobID(), new JobVertexID(), 0)),
                 priorityQueueSetFactory,
-                false,
+                asynchronousSnapshots,
                 new CloseableRegistry()
         );
         return backendBuilder.build();

@@ -21,5 +21,5 @@ package org.apache.flink.state.benchmark;
  * Enum of backend type.
  */
 public enum BackendType {
-    HEAP, ROCKSDB
+    HEAP, HEAP_ASYNC, ROCKSDB
 }
