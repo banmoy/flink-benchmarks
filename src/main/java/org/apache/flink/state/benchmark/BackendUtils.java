@@ -35,6 +35,8 @@ import org.apache.flink.runtime.state.LocalRecoveryDirectoryProviderImpl;
 import org.apache.flink.runtime.state.heap.HeapKeyedStateBackend;
 import org.apache.flink.runtime.state.heap.HeapKeyedStateBackendBuilder;
 import org.apache.flink.runtime.state.heap.HeapPriorityQueueSetFactory;
+import org.apache.flink.runtime.state.heap.SpillableKeyedStateBackend;
+import org.apache.flink.runtime.state.heap.SpillableKeyedStateBackendBuilder;
 import org.apache.flink.runtime.state.ttl.TtlTimeProvider;
 import org.apache.flink.util.IOUtils;
 import org.rocksdb.ColumnFamilyOptions;
@@ -107,6 +109,32 @@ public class BackendUtils {
                 new LocalRecoveryConfig(false, new LocalRecoveryDirectoryProviderImpl(recoveryBaseDir, new JobID(), new JobVertexID(), 0)),
                 priorityQueueSetFactory,
                 asynchronousSnapshots,
+                new CloseableRegistry()
+        );
+        return backendBuilder.build();
+    }
+
+    static SpillableKeyedStateBackend<Long> createSpillableKeyedStateBackend() throws IOException {
+        File rootDir = prepareDirectory(rootDirName, null);
+        File recoveryBaseDir = prepareDirectory(recoveryDirName, rootDir);
+        KeyGroupRange keyGroupRange = new KeyGroupRange(0, 1);
+        int numberOfKeyGroups = keyGroupRange.getNumberOfKeyGroups();
+        ExecutionConfig executionConfig = new ExecutionConfig();
+        HeapPriorityQueueSetFactory priorityQueueSetFactory =
+                new HeapPriorityQueueSetFactory(keyGroupRange, numberOfKeyGroups, 128);
+        SpillableKeyedStateBackendBuilder<Long> backendBuilder = new SpillableKeyedStateBackendBuilder<>(
+                null,
+                new LongSerializer(),
+                Thread.currentThread().getContextClassLoader(),
+                numberOfKeyGroups,
+                keyGroupRange,
+                executionConfig,
+                TtlTimeProvider.DEFAULT,
+                Collections.emptyList(),
+                AbstractStateBackend.getCompressionDecorator(executionConfig),
+                new LocalRecoveryConfig(false, new LocalRecoveryDirectoryProviderImpl(recoveryBaseDir, new JobID(), new JobVertexID(), 0)),
+                priorityQueueSetFactory,
+                false,
                 new CloseableRegistry()
         );
         return backendBuilder.build();

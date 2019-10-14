@@ -89,7 +89,7 @@ public class StreamNetworkThroughputBenchmarkExecutor extends BenchmarkBase {
 					false,
 					-1,
 					-1,
-					useSSL ? SSLUtilsTest.createInternalSslConfigWithKeyAndTrustStores() : new Configuration()
+					useSSL ? SSLUtilsTest.createInternalSslConfigWithKeyAndTrustStores("JDK") : new Configuration()
 			);
 		}
 

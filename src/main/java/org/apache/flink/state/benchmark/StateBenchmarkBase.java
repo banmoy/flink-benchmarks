@@ -47,7 +47,7 @@ import static org.apache.flink.state.benchmark.StateBenchmarkConstants.setupKeys
 public class StateBenchmarkBase extends BenchmarkBase {
     KeyedStateBackend<Long> keyedStateBackend;
 
-    @Param({"HEAP", "HEAP_ASYNC", "ROCKSDB"})
+    @Param({"HEAP", "HEAP_ASYNC", "ROCKSDB", "SPILLABLE"})
     private BackendType backendType = BackendType.HEAP;
 
     final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -67,6 +67,9 @@ public class StateBenchmarkBase extends BenchmarkBase {
                 break;
             case ROCKSDB:
                 keyedStateBackend = BackendUtils.createRocksDBKeyedStateBackend();
+                break;
+            case SPILLABLE:
+                keyedStateBackend = BackendUtils.createSpillableKeyedStateBackend();
                 break;
             default:
                 break;
